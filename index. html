@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AmitTG</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #1e1e1e;
+      --text-dark: #eee;
+      --primary: #7b1fa2;
+      --accent: #26a69a;
+      --error: #ffebee;
+    }
+
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-dark);
+      transition: 0.3s;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h2 {
+      margin: 0;
+      font-size: 26px;
+      color: var(--primary);
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: 1px solid #666;
+      background: #2c2c2c;
+      color: white;
+    }
+
+    .btn, .copy-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      margin-top: 10px;
+      border-radius: 8px;
+      font-size: 15px;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .copy-btn {
+      background: var(--accent);
+    }
+
+    .card {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 12px;
+      background: #2c2c2c;
+    }
+
+    .label {
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .dup-pill {
+      background: var(--error);
+      color: #c62828;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin: 6px 0;
+      display: block;
+    }
+
+    .saved-entry {
+      background: #004d40;
+      color: white;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+
+    .saved-meta {
+      font-weight: 600;
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+      .btn, .copy-btn {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h2>✨ AmitTG</h2>
+  </div>
+
+  <textarea id="numberInput" placeholder="Paste numbers here..."></textarea>
+  <button class="btn" onclick="processNumbers()">🧹 Clean Numbers</button>
+
+  <div class="card">
+    <span class="label">✅ Cleaned Numbers: <span id="cleanCount">0</span></span>
+    <input type="hidden" id="cleanOutput">
+    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Cleaned</button>
+
+    <!-- 🚀 Snapwallet Button -->
+    <a href="https://snapwallet.in/view-number-tools" target="_blank">
+      <button class="copy-btn">🚀 Continue with Snapwallet</button>
+    </a>
+
+    <button class="btn" onclick="saveNumbers()">💾 Save Cleaned Numbers</button>
+  </div>
+
+  <div class="card">
+    <span class="label">❌ Duplicate Numbers (<span id="dupCount">0</span>):</span>
+    <div id="duplicateOutput"></div>
+  </div>
+
+  <div class="card">
+    <span class="label">🚫 Invalid Numbers (<span id="invalidCount">0</span>):</span>
+    <p id="invalidOutput"></p>
+  </div>
+
+  <div class="card" id="historyCard">
+    <span class="label">📂 History:</span>
+    <div id="savedData"></div>
+  </div>
+
+  <script>
+    let detectedName = "";
+    let saveCounter = 0;
+
+    window.onload = () => {
+      renderHistory(); // show history on load
+    };
+
+    function processNumbers() {
+      const input = document.getElementById("numberInput").value.trim();
+      const lines = input.split("\n");
+      detectedName = "Unnamed " + (++saveCounter);
+
+      if (lines.length && lines[0].includes(":")) {
+        detectedName = lines[0].split(":")[0].trim();
+        lines.shift();
+      }
+
+      const numbers = lines.join("\n").split(/[\s,]+/);
+      const seen = new Set();
+      const dupes = new Set();
+      const invalid = [];
+      const cleaned = [];
+
+      for (let num of numbers) {
+        num = num.replace(/\D/g, "");
+        if (num.length === 10) {
+          if (seen.has(num)) {
+            dupes.add(num);
+          } else {
+            seen.add(num);
+            cleaned.push(num);
+          }
+        } else if (num.length > 0) {
+          invalid.push(num);
+        }
+      }
+
+      document.getElementById("cleanOutput").value = cleaned.join(",");
+      document.getElementById("cleanCount").textContent = cleaned.length;
+
+      const dupDiv = document.getElementById("duplicateOutput");
+      dupDiv.innerHTML = "";
+      Array.from(dupes).forEach((n, i) => {
+        const el = document.createElement("div");
+        el.className = "dup-pill";
+        el.textContent = `${i + 1}. ${n}`;
+        dupDiv.appendChild(el);
+      });
+
+      document.getElementById("dupCount").textContent = dupes.size;
+      document.getElementById("invalidOutput").textContent = invalid.join(", ");
+      document.getElementById("invalidCount").textContent = invalid.length;
+    }
+
+    function copyToClipboard() {
+      const val = document.getElementById("cleanOutput").value;
+      if (!val) return alert("⚠️ No numbers found.");
+      navigator.clipboard.writeText(val).then(() => alert("✅ Copied!"));
+    }
+
+    function saveNumbers() {
+      const val = document.getElementById("cleanOutput").value;
+      if (!val) return alert("⚠️ Clean numbers first.");
+      const now = new Date();
+      const date = now.toLocaleDateString();
+      const time = now.toLocaleTimeString();
+      const entry = { name: detectedName, date, time, numbers: val };
+
+      let all = JSON.parse(localStorage.getItem("savedNumbers") || "[]");
+      all.push(entry);
+      localStorage.setItem("savedNumbers", JSON.stringify(all));
+      alert("✅ Saved!");
+      renderHistory();
+    }
+
+    function renderHistory() {
+      const saved = JSON.parse(localStorage.getItem("savedNumbers") || "[]");
+      const container = document.getElementById("savedData");
+      container.innerHTML = "";
+
+      saved.forEach((item, i) => {
+        const div = document.createElement("div");
+        div.className = "saved-entry";
+        div.innerHTML = `
+          <div class="saved-meta">📛 <b>${item.name}</b> | 🗓️ ${item.date} | 🕒 ${item.time}</div>
+          <button class="copy-btn" onclick="navigator.clipboard.writeText('${item.numbers}').then(() => alert('Copied!'))">📋 Copy</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+  </script>
+
+</body>
+</html>
