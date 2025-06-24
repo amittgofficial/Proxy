@@ -119,7 +119,7 @@
     <span class="label">✅ Cleaned Numbers: <span id="cleanCount">0</span></span>
     <input type="hidden" id="cleanOutput">
     <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Cleaned</button>
-    <button class="copy-btn" onclick="openSnapwallet()">🚀 Continue with Snapwallet</button>
+    <button class="copy-btn" onclick="goToSnapwallet()">🚀 Continue with Snapwallet</button>
     <button class="btn" onclick="saveNumbers()">💾 Save Cleaned Numbers</button>
   </div>
 
@@ -199,12 +199,9 @@
       navigator.clipboard.writeText(val).then(() => alert("✅ Copied!"));
     }
 
-    function openSnapwallet() {
-      window.open(
-        "https://snapwallet.in/view-number-tools",
-        "SnapwalletPopup",
-        "width=500,height=700,left=100,top=100"
-      );
+    function goToSnapwallet() {
+      localStorage.setItem("back_url", window.location.href);
+      window.location.href = "https://snapwallet.in/view-number-tools";
     }
 
     function saveNumbers() {
