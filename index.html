@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AmitTG</title>
+  <title>AmitTG - Number Cleaner</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -98,10 +98,6 @@
       margin-bottom: 4px;
     }
 
-    a {
-      text-decoration: none;
-    }
-
     @media (max-width: 600px) {
       .btn, .copy-btn {
         font-size: 14px;
@@ -123,12 +119,7 @@
     <span class="label">✅ Cleaned Numbers: <span id="cleanCount">0</span></span>
     <input type="hidden" id="cleanOutput">
     <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Cleaned</button>
-
-    <!-- 🚀 Snapwallet Button -->
-    <a href="https://snapwallet.in/view-number-tools" target="_blank">
-      <button class="copy-btn">🚀 Continue with Snapwallet</button>
-    </a>
-
+    <button class="copy-btn" onclick="openSnapwallet()">🚀 Continue with Snapwallet</button>
     <button class="btn" onclick="saveNumbers()">💾 Save Cleaned Numbers</button>
   </div>
 
@@ -206,6 +197,14 @@
       const val = document.getElementById("cleanOutput").value;
       if (!val) return alert("⚠️ No numbers found.");
       navigator.clipboard.writeText(val).then(() => alert("✅ Copied!"));
+    }
+
+    function openSnapwallet() {
+      window.open(
+        "https://snapwallet.in/view-number-tools",
+        "SnapwalletPopup",
+        "width=500,height=700,left=100,top=100"
+      );
     }
 
     function saveNumbers() {
