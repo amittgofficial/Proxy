@@ -1,238 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AmitTG - Number Cleaner</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <title>Video Tracker </title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    :root {
-      --bg-dark: #1e1e1e;
-      --text-dark: #eee;
-      --primary: #7b1fa2;
-      --accent: #26a69a;
-      --error: #ffebee;
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
+      background: #1e1e1e;
+      color: #fdfdfd;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
-      padding: 20px;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg-dark);
-      color: var(--text-dark);
-      transition: 0.3s;
+      padding: 15px;
+      font-smooth: always;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.2s ease-in-out;
     }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .header h2 {
-      margin: 0;
-      font-size: 26px;
-      color: var(--primary);
+    h2 {
+      text-align: center;
+      margin-top: 10px;
+      color: #d32f2f;
+      font-size: 20px;
+      font-weight: 600;
     }
 
     textarea {
       width: 100%;
-      height: 150px;
-      padding: 12px;
-      font-size: 16px;
-      border-radius: 10px;
-      border: 1px solid #666;
-      background: #2c2c2c;
-      color: white;
+      font-size: 15px;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background: #fdfdfd;
+      color: #222;
+      resize: vertical;
+      height: 120px;
+      outline: none;
+      transition: border 0.2s ease;
     }
 
-    .btn, .copy-btn {
-      background: var(--primary);
+    textarea:focus {
+      border-color: #cc0000;
+    }
+
+    button {
+      width: 100%;
+      padding: 11px;
+      font-size: 16px;
+      background-color: #cc0000;
       color: white;
       border: none;
-      padding: 10px 16px;
-      margin-top: 10px;
       border-radius: 8px;
-      font-size: 15px;
-      width: 100%;
+      margin-top: 12px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #b30000;
+    }
+
+    #loader {
+      text-align: center;
+      display: none;
+      font-size: 16px;
+      color: #cc0000;
+      margin-top: 15px;
+    }
+
+    .result {
+      margin-top: 18px;
+    }
+
+ .video-block {
+      display: flex;
+      align-items: center;
+      background: #1e1e1e;
+      border: 1px solid #333;
+      border-left: 4px solid #cc0000;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(255, 255, 255, 0.05);
+    }
+
+    .thumb {
+      width: 85px;
+      height: 85px;
+      border-radius: 6px;
+      object-fit: cover;
       cursor: pointer;
     }
 
-    .copy-btn {
-      background: var(--accent);
+    .video-info {
+      margin-left: 10px;
+      flex-grow: 1;
     }
 
-    .card {
-      margin-top: 20px;
-      padding: 16px;
-      border-radius: 12px;
-      background: #2c2c2c;
+    .video-title {
+      font-weight: 500;
+      font-size: 13px;
+      line-height: 1.3em;
     }
 
-    .label {
+    .not-found {
+      color: #e53935;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .video-serial {
+      color: #f1c40f;
       font-weight: bold;
-      color: var(--primary);
+      margin-right: 6px;
     }
 
-    .dup-pill {
-      background: var(--error);
-      color: #c62828;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin: 6px 0;
-      display: block;
+    a {
+      font-size: 12px;
+      color: #007bff;
+      text-decoration: none;
     }
 
-    .saved-entry {
-      background: #004d40;
-      color: white;
-      padding: 10px;
-      margin-top: 10px;
-      border-radius: 8px;
+    a:hover {
+      text-decoration: underline;
     }
 
-    .saved-meta {
-      font-weight: 600;
-      font-size: 15px;
-      margin-bottom: 4px;
-    }
+    @media (max-width: 480px) {
+      .thumb {
+        width: 70px;
+        height: 70px;
+      }
 
-    @media (max-width: 600px) {
-      .btn, .copy-btn {
+      .video-title {
+        font-size: 12px;
+      }
+
+      button {
+        font-size: 15px;
+      }
+
+      textarea {
         font-size: 14px;
-        padding: 10px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h2>✨ AmitTG</h2>
-  </div>
+  <h2>Video Tracker</h2>
 
-  <textarea id="numberInput" placeholder="Paste numbers here..."></textarea>
-  <button class="btn" onclick="processNumbers()">🧹 Clean Numbers</button>
+  <textarea id="ytLinks" placeholder="1 https://youtu.be/BHSuKat96wI&#10;2 https://youtu.be/fakeid123"></textarea>
 
-  <div class="card">
-    <span class="label">✅ Cleaned Numbers: <span id="cleanCount">0</span></span>
-    <input type="hidden" id="cleanOutput">
-    <button class="copy-btn" onclick="copyToClipboard()">📋 Copy Cleaned</button>
-    <button class="copy-btn" onclick="goToSnapwallet()">🚀 Continue with Snapwallet</button>
-    <button class="btn" onclick="saveNumbers()">💾 Save Cleaned Numbers</button>
-  </div>
+  <button onclick="checkVideos()">Track</button>
 
-  <div class="card">
-    <span class="label">❌ Duplicate Numbers (<span id="dupCount">0</span>):</span>
-    <div id="duplicateOutput"></div>
-  </div>
+  <div id="loader">⏳ Tracking please wait...</div>
 
-  <div class="card">
-    <span class="label">🚫 Invalid Numbers (<span id="invalidCount">0</span>):</span>
-    <p id="invalidOutput"></p>
-  </div>
-
-  <div class="card" id="historyCard">
-    <span class="label">📂 History:</span>
-    <div id="savedData"></div>
-  </div>
+  <div id="results" class="result"></div>
 
   <script>
-    let detectedName = "";
-    let saveCounter = 0;
+    function extractVideoID(url) {
+      const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+      const match = url.match(regExp);
+      return match ? match[1] : null;
+    }
 
-    window.onload = () => {
-      renderHistory(); // show history on load
-    };
-
-    function processNumbers() {
-      const input = document.getElementById("numberInput").value.trim();
+    async function checkVideos() {
+      const input = document.getElementById("ytLinks").value.trim();
       const lines = input.split("\n");
-      detectedName = "Unnamed " + (++saveCounter);
+      const resultsDiv = document.getElementById("results");
+      const loader = document.getElementById("loader");
+      resultsDiv.innerHTML = "";
+      loader.style.display = "block"; // Show loader
 
-      if (lines.length && lines[0].includes(":")) {
-        detectedName = lines[0].split(":")[0].trim();
-        lines.shift();
-      }
+      const tasks = lines.map((line, i) => {
+        line = line.trim();
+        if (!line) return null;
 
-      const numbers = lines.join("\n").split(/[\s,]+/);
-      const seen = new Set();
-      const dupes = new Set();
-      const invalid = [];
-      const cleaned = [];
+        let serial = "";
+        let url = line;
 
-      for (let num of numbers) {
-        num = num.replace(/\D/g, "");
-        if (num.length === 10) {
-          if (seen.has(num)) {
-            dupes.add(num);
-          } else {
-            seen.add(num);
-            cleaned.push(num);
-          }
-        } else if (num.length > 0) {
-          invalid.push(num);
+        const match = line.match(/^(\d+)\.?\s+(https?:\/\/[^\s]+)$/);
+        if (match) {
+          serial = match[1];
+          url = match[2];
+        } else {
+          serial = (i + 1).toString();
         }
-      }
 
-      document.getElementById("cleanOutput").value = cleaned.join(",");
-      document.getElementById("cleanCount").textContent = cleaned.length;
+        const videoId = extractVideoID(url);
+        const block = document.createElement("div");
+        block.className = "video-block";
 
-      const dupDiv = document.getElementById("duplicateOutput");
-      dupDiv.innerHTML = "";
-      Array.from(dupes).forEach((n, i) => {
-        const el = document.createElement("div");
-        el.className = "dup-pill";
-        el.textContent = `${i + 1}. ${n}`;
-        dupDiv.appendChild(el);
+        if (!videoId) {
+          block.innerHTML = `
+            <div class="video-title">
+              <span class="video-serial">${serial}</span>
+              <span class="not-found">❌ Not Found</span><br>
+              <a href="${url}" target="_blank">${url}</a>
+            </div>
+          `;
+          return block;
+        }
+
+        return fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
+          .then(res => res.json())
+          .then(data => {
+            block.innerHTML = `
+              <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" class="thumb" onclick="window.open('https://youtu.be/${videoId}', '_blank')">
+              <div class="video-info">
+                <div class="video-title">
+                  <span class="video-serial">${serial}</span>${data.title}
+                </div>
+              </div>
+            `;
+            return block;
+          })
+          .catch(() => {
+            block.innerHTML = `
+              <div class="video-title">
+                <span class="video-serial">${serial}</span>
+                <span class="not-found">❌ Not Found</span><br>
+                <a href="${url}" target="_blank">${url}</a>
+              </div>
+            `;
+            return block;
+          });
       });
 
-      document.getElementById("dupCount").textContent = dupes.size;
-      document.getElementById("invalidOutput").textContent = invalid.join(", ");
-      document.getElementById("invalidCount").textContent = invalid.length;
-    }
-
-    function copyToClipboard() {
-      const val = document.getElementById("cleanOutput").value;
-      if (!val) return alert("⚠️ No numbers found.");
-      navigator.clipboard.writeText(val).then(() => alert("✅ Copied!"));
-    }
-
-    function goToSnapwallet() {
-      localStorage.setItem("back_url", window.location.href);
-      window.location.href = "https://snapwallet.in/view-number-tools";
-    }
-
-    function saveNumbers() {
-      const val = document.getElementById("cleanOutput").value;
-      if (!val) return alert("⚠️ Clean numbers first.");
-      const now = new Date();
-      const date = now.toLocaleDateString();
-      const time = now.toLocaleTimeString();
-      const entry = { name: detectedName, date, time, numbers: val };
-
-      let all = JSON.parse(localStorage.getItem("savedNumbers") || "[]");
-      all.push(entry);
-      localStorage.setItem("savedNumbers", JSON.stringify(all));
-      alert("✅ Saved!");
-      renderHistory();
-    }
-
-    function renderHistory() {
-      const saved = JSON.parse(localStorage.getItem("savedNumbers") || "[]");
-      const container = document.getElementById("savedData");
-      container.innerHTML = "";
-
-      saved.forEach((item, i) => {
-        const div = document.createElement("div");
-        div.className = "saved-entry";
-        div.innerHTML = `
-          <div class="saved-meta">📛 <b>${item.name}</b> | 🗓️ ${item.date} | 🕒 ${item.time}</div>
-          <button class="copy-btn" onclick="navigator.clipboard.writeText('${item.numbers}').then(() => alert('Copied!'))">📋 Copy</button>
-        `;
-        container.appendChild(div);
+      const allBlocks = await Promise.all(tasks.map(p => p instanceof Promise ? p : Promise.resolve(p)));
+      allBlocks.forEach(block => {
+        if (block) resultsDiv.appendChild(block);
       });
+
+      loader.style.display = "none"; // Hide loader
     }
   </script>
 
