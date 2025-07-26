@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Video Tracker </title>
+  <title>Video Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
@@ -157,7 +157,6 @@
 
   <button onclick="checkVideos()">Track</button>
 
-  <!-- 🔥 Total Link Count Display -->
   <div id="linkCount" style="text-align:center; margin-top:10px; font-size:14px; color:#66bb6a;"></div>
 
   <div id="loader">⏳ Tracking please wait...</div>
@@ -165,7 +164,7 @@
   <div id="results" class="result"></div>
 
  <script>
-  const apiKey = "AIzaSyDDq8qrwx33s-b7X3lRaujbmSZjB46732s";
+  const apiKey = "AIzaSyDFvv93DEI4LG-uCwR8EGWm1lQ_i6Ob1n8";
 
   function extractVideoID(url) {
     const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -174,11 +173,10 @@
   }
 
   function updateDailyCount(countToAdd) {
-    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const today = new Date().toISOString().slice(0, 10);
     const saved = JSON.parse(localStorage.getItem("dailyLinkTracker") || "{}");
 
     if (saved.date !== today) {
-      // New day: reset
       localStorage.setItem("dailyLinkTracker", JSON.stringify({ date: today, count: countToAdd }));
       return countToAdd;
     } else {
@@ -198,7 +196,6 @@
     resultsDiv.innerHTML = "";
     loader.style.display = "block";
 
-    // 🔄 Update daily usage count
     const totalToday = updateDailyCount(lines.length);
     linkCountDiv.innerText = `🔗 Total: ${totalToday}:10000`;
 
@@ -231,15 +228,13 @@
       }
 
       try {
-        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${apiKey}`;
         const response = await fetch(apiUrl);
         const data = await response.json();
         const video = data.items[0];
 
         const title = video.snippet.title;
         const thumbnail = video.snippet.thumbnails.high.url;
-        const channelName = video.snippet.channelTitle;
-        const likeCount = video.statistics.likeCount || "Hidden";
 
         block.innerHTML = `
           <img src="${thumbnail}" class="thumb" onclick="window.open('https://youtu.be/${videoId}', '_blank')">
@@ -247,8 +242,6 @@
             <div class="video-title">
               <span class="video-serial">${serial}</span>${title}
             </div>
-            <div style="font-size: 12px; color: #bbb;">📺 ${channelName}</div>
-            <div style="font-size: 12px; color: #f39c12;">👍 Likes: ${likeCount}</div>
           </div>
         `;
         return block;
