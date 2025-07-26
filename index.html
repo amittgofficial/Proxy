@@ -76,7 +76,7 @@
       margin-top: 18px;
     }
 
- .video-block {
+    .video-block {
       display: flex;
       align-items: center;
       background: #1e1e1e;
@@ -157,88 +157,121 @@
 
   <button onclick="checkVideos()">Track</button>
 
+  <!-- 🔥 Total Link Count Display -->
+  <div id="linkCount" style="text-align:center; margin-top:10px; font-size:14px; color:#66bb6a;"></div>
+
   <div id="loader">⏳ Tracking please wait...</div>
 
   <div id="results" class="result"></div>
 
-  <script>
-    function extractVideoID(url) {
-      const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-      const match = url.match(regExp);
-      return match ? match[1] : null;
+ <script>
+  const apiKey = "AIzaSyDDq8qrwx33s-b7X3lRaujbmSZjB46732s";
+
+  function extractVideoID(url) {
+    const regExp = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|embed)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regExp);
+    return match ? match[1] : null;
+  }
+
+  function updateDailyCount(countToAdd) {
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const saved = JSON.parse(localStorage.getItem("dailyLinkTracker") || "{}");
+
+    if (saved.date !== today) {
+      // New day: reset
+      localStorage.setItem("dailyLinkTracker", JSON.stringify({ date: today, count: countToAdd }));
+      return countToAdd;
+    } else {
+      const newCount = (saved.count || 0) + countToAdd;
+      localStorage.setItem("dailyLinkTracker", JSON.stringify({ date: today, count: newCount }));
+      return newCount;
     }
+  }
 
-    async function checkVideos() {
-      const input = document.getElementById("ytLinks").value.trim();
-      const lines = input.split("\n");
-      const resultsDiv = document.getElementById("results");
-      const loader = document.getElementById("loader");
-      resultsDiv.innerHTML = "";
-      loader.style.display = "block"; // Show loader
+  async function checkVideos() {
+    const input = document.getElementById("ytLinks").value.trim();
+    const lines = input.split("\n").filter(line => line.trim());
+    const resultsDiv = document.getElementById("results");
+    const loader = document.getElementById("loader");
+    const linkCountDiv = document.getElementById("linkCount");
 
-      const tasks = lines.map((line, i) => {
-        line = line.trim();
-        if (!line) return null;
+    resultsDiv.innerHTML = "";
+    loader.style.display = "block";
 
-        let serial = "";
-        let url = line;
+    // 🔄 Update daily usage count
+    const totalToday = updateDailyCount(lines.length);
+    linkCountDiv.innerText = `🔗 Total: ${totalToday}:10000`;
 
-        const match = line.match(/^(\d+)\.?\s+(https?:\/\/[^\s]+)$/);
-        if (match) {
-          serial = match[1];
-          url = match[2];
-        } else {
-          serial = (i + 1).toString();
-        }
+    const tasks = lines.map(async (line, i) => {
+      line = line.trim();
+      let serial = "";
+      let url = line;
 
-        const videoId = extractVideoID(url);
-        const block = document.createElement("div");
-        block.className = "video-block";
+      const match = line.match(/^(\d+)\.?\s+(https?:\/\/[^\s]+)$/);
+      if (match) {
+        serial = match[1];
+        url = match[2];
+      } else {
+        serial = (i + 1).toString();
+      }
 
-        if (!videoId) {
-          block.innerHTML = `
+      const videoId = extractVideoID(url);
+      const block = document.createElement("div");
+      block.className = "video-block";
+
+      if (!videoId) {
+        block.innerHTML = `
+          <div class="video-title">
+            <span class="video-serial">${serial}</span>
+            <span class="not-found">❌ Not Found</span><br>
+            <a href="${url}" target="_blank">${url}</a>
+          </div>
+        `;
+        return block;
+      }
+
+      try {
+        const apiUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        const video = data.items[0];
+
+        const title = video.snippet.title;
+        const thumbnail = video.snippet.thumbnails.high.url;
+        const channelName = video.snippet.channelTitle;
+        const likeCount = video.statistics.likeCount || "Hidden";
+
+        block.innerHTML = `
+          <img src="${thumbnail}" class="thumb" onclick="window.open('https://youtu.be/${videoId}', '_blank')">
+          <div class="video-info">
             <div class="video-title">
-              <span class="video-serial">${serial}</span>
-              <span class="not-found">❌ Not Found</span><br>
-              <a href="${url}" target="_blank">${url}</a>
+              <span class="video-serial">${serial}</span>${title}
             </div>
-          `;
-          return block;
-        }
+            <div style="font-size: 12px; color: #bbb;">📺 ${channelName}</div>
+            <div style="font-size: 12px; color: #f39c12;">👍 Likes: ${likeCount}</div>
+          </div>
+        `;
+        return block;
+      } catch (error) {
+        block.innerHTML = `
+          <div class="video-title">
+            <span class="video-serial">${serial}</span>
+            <span class="not-found">❌ Error</span><br>
+            <a href="${url}" target="_blank">${url}</a>
+          </div>
+        `;
+        return block;
+      }
+    });
 
-        return fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`)
-          .then(res => res.json())
-          .then(data => {
-            block.innerHTML = `
-              <img src="https://img.youtube.com/vi/${videoId}/hqdefault.jpg" class="thumb" onclick="window.open('https://youtu.be/${videoId}', '_blank')">
-              <div class="video-info">
-                <div class="video-title">
-                  <span class="video-serial">${serial}</span>${data.title}
-                </div>
-              </div>
-            `;
-            return block;
-          })
-          .catch(() => {
-            block.innerHTML = `
-              <div class="video-title">
-                <span class="video-serial">${serial}</span>
-                <span class="not-found">❌ Not Found</span><br>
-                <a href="${url}" target="_blank">${url}</a>
-              </div>
-            `;
-            return block;
-          });
-      });
+    const allBlocks = await Promise.all(tasks);
+    allBlocks.forEach(block => {
+      if (block) resultsDiv.appendChild(block);
+    });
 
-      const allBlocks = await Promise.all(tasks.map(p => p instanceof Promise ? p : Promise.resolve(p)));
-      allBlocks.forEach(block => {
-        if (block) resultsDiv.appendChild(block);
-      });
-
-      loader.style.display = "none"; // Hide loader
-    }
-  </script>
+    loader.style.display = "none";
+  }
+</script>
 
 </body>
 </html>
